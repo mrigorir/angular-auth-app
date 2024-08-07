@@ -2,6 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environments } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { User } from '../interfaces/user.interface';
+import { AuthStatus } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,7 @@ export class AuthService {
   private http = inject(HttpClient);
 
   private _currentUser = signal<User | null>(null);
-  private _authStatus = signal<AuthStatus>(null);
+  private _authStatus = signal<AuthStatus>(AuthStatus.checking);
 
   constructor() { }
 
