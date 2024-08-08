@@ -43,6 +43,7 @@ export class AuthService {
   }
 
   checkAuthStatus(): Observable<boolean> {
+    //Para que la variable de localStorage funcione, el SSR de angular debe estar en false
     const url = `${this.baseUrl}/auth/check-token`;
     const token = localStorage.getItem('token');
 
