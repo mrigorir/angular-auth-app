@@ -1,10 +1,12 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environments } from '../../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { User } from '../interfaces/user.interface';
 import { AuthStatus, LoginResponse } from '../interfaces';
 import { checkTokenResponse } from '../interfaces/check-token.response';
+import { Router } from '@angular/router';
+
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +14,12 @@ import { checkTokenResponse } from '../interfaces/check-token.response';
 export class AuthService {
   private readonly baseUrl: string = environments.baseUrl;
   private http = inject(HttpClient);
+  private router = inject(Router);
 
   private _currentUser = signal<User | null>(null);
   private _authStatus = signal<AuthStatus>(AuthStatus.checking);
 
-  //! Al muhndo exterior
+  //! Al mundo exterior
   currentUser = computed(() => this._currentUser());
   authStatus = computed(() => this._authStatus());
 
@@ -47,7 +50,10 @@ export class AuthService {
     const url = `${this.baseUrl}/auth/check-token`;
     const token = localStorage.getItem('token');
 
-    if (!token) return of(false);
+    if (!token) {
+      this.logout();
+      return of(false)
+    };
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -58,5 +64,11 @@ export class AuthService {
         return of(false);
       })
     );
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this._currentUser.set(null);
+    this._authStatus.set(AuthStatus.notAuthenticated);
   }
 }
